@@ -120,3 +120,17 @@ export const constGateDeviceSchema = z.object({
     temporary_identifier_bearer_id: z.number().optional()
   }).optional()
 })
+
+export const selectListGatesSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const selectListGateDevicesSchema = z.object({
+  id: z.number().optional(),
+  device_id: z.string().optional(),
+  device_device_id: z.string().optional(),
+  is_active: z.boolean().optional(),
+});

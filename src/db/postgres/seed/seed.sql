@@ -19,11 +19,11 @@ INSERT INTO "user_information" ("user_id", "username", "name", "last_name", "ide
 INSERT INTO "user_status" ("user_id", "is_active", "created_by") VALUES(3, true, 1);
 
 INSERT INTO "users" ("lida_id", "role_id") VALUES('tmKuCxeI64ayjo', 3);
-INSERT INTO "user_information" ("user_id", "username", "name", "last_name", "identity_number") VALUES(4, 'JMiranda', 'José', 'Miranda', 14049987);
+INSERT INTO "user_information" ("user_id", "username", "name", "last_name", "identity_number") VALUES(4, 'JMiranda', 'José', 'Miranda', 14049988);
 INSERT INTO "user_status" ("user_id", "is_active", "created_by") VALUES(4, true, 1);
 
 INSERT INTO "users" ("lida_id", "role_id") VALUES('598jzerM4oO0y2', 3);
-INSERT INTO "user_information" ("user_id", "username", "name", "last_name", "identity_number") VALUES(5, 'ARodriguez', 'Argenis', 'Rodriguez', 14049987);
+INSERT INTO "user_information" ("user_id", "username", "name", "last_name", "identity_number") VALUES(5, 'ARodriguez', 'Argenis', 'Rodriguez', 14049989);
 INSERT INTO "user_status" ("user_id", "is_active", "created_by") VALUES(5, true, 1);
 
 INSERT INTO "users" ("lida_id", "role_id") VALUES('LutF5ifoPJeKGA', 3);
@@ -65,45 +65,52 @@ INSERT INTO "temporary_identifiers" ("temporary_identifier_id","factory_id", "cr
 INSERT INTO "temporary_identifier_bearers" ("temporary_identifier_id", "user_id", "organization_id", "valid_from", "valid_to", "created_by") VALUES(3, 7, 1, NOW(), '2025-10-10 23:59:59.59', 1);
 INSERT INTO "temporary_identifier_bearer_status" ("temporary_identifier_bearer_id", "is_active", "created_by") VALUES(3, true, 1);
 
-INSERT INTO "device_roles" ("name", "description", "created_by") VALUES('PedestrianEntry', 'Modulo de acceso peatonal', 1);
+INSERT INTO "device_roles" ("name", "description", "created_by") VALUES('Writer', 'Modulo de escritura de credenciales', 1);
 INSERT INTO "device_role_status" ("device_role_id", "is_active", "created_by") VALUES(1, true, 1);
 
-INSERT INTO "device_roles" ("name", "description", "created_by") VALUES('VehicleEntry', 'Modulo de acceso vehicular', 1);
+INSERT INTO "device_roles" ("name", "description", "created_by") VALUES('PedestrianEntry', 'Modulo de acceso peatonal', 1);
 INSERT INTO "device_role_status" ("device_role_id", "is_active", "created_by") VALUES(2, true, 1);
 
-INSERT INTO "devices" ("device_id", "token", "role_id") VALUES('0uGkjBlJH8O4RT', '0lisikmL24Bf5Oem6CZj9quNqOuHjVdw1', 1);
+INSERT INTO "device_roles" ("name", "description", "created_by") VALUES('VehicleEntry', 'Modulo de acceso vehicular', 1);
+INSERT INTO "device_role_status" ("device_role_id", "is_active", "created_by") VALUES(3, true, 1);
+
+INSERT INTO "devices" ("device_id", "token", "role_id") VALUES('0uGkjBlJH8O4RT', '0lisikmL24Bf5Oem6CZj9quNqOuHjVdw1', 2);
 INSERT INTO "device_status" ("device_id", "is_active", "created_by") VALUES(1, true, 1);
 
 INSERT INTO "devices" ("device_id", "token", "role_id") VALUES('L1d4o0KFaqDNqK', '77kij3gBPseRae9In-tkaPFUbXbqAUDp', 1);
 INSERT INTO "device_status" ("device_id", "is_active", "created_by") VALUES(2, true, 1);
 
-INSERT INTO "devices" ("device_id", "token", "role_id") VALUES('o3np4DnQ1h0Dps', '_fAEu5le32d-m4iqrZNimx719RFBPc8n', 1);
+INSERT INTO "devices" ("device_id", "token", "role_id") VALUES('o3np4DnQ1h0Dps', '_fAEu5le32d-m4iqrZNimx719RFBPc8n', 2);
 INSERT INTO "device_status" ("device_id", "is_active", "created_by") VALUES(3, true, 1);
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianEntry', 'Entrada peatonal', 1);
-INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(1, true, 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('Writer', 'Escritor de Credenciales', 1);
+INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(1, true, 1); 
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianExit', 'Salida peatonal', 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianEntry', 'Entrada peatonal', 1);
 INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(2, true, 1);
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianEntryExit', 'Entrada y Salida peatonal', 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianExit', 'Salida peatonal', 1);
 INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(3, true, 1);
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleEntry', 'Entrada vehicular', 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('PedestrianEntryExit', 'Entrada y Salida peatonal', 1);
 INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(4, true, 1);
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleExit', 'Salida vehicular', 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleEntry', 'Entrada vehicular', 1);
 INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(5, true, 1);
 
-INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleEntryExit', 'Entrada y Salida vehicular', 1);
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleExit', 'Salida vehicular', 1);
 INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(6, true, 1);
 
+INSERT INTO "actions" ("name", "description", "created_by") VALUES('VehicleEntryExit', 'Entrada y Salida vehicular', 1);
+INSERT INTO "action_status" ("action_id", "is_active", "created_by") VALUES(7, true, 1);
+
 INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(1, 1,  true, 1);
-INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(2, 1,  true, 1);
-INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(3, 1,  true, 1);
+INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(2, 2,  true, 1);
+INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(3, 2,  true, 1);
 INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(4, 2,  true, 1);
-INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(5, 2,  true, 1);
-INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(6, 2,  true, 1);
+INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(5, 3,  true, 1);
+INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(6, 3,  true, 1);
+INSERT INTO "action_device_roles" ("action_id", "device_role_id", "is_active", "created_by") VALUES(7, 3,  true, 1);
 
 INSERT INTO "action_user_roles" ("action_id", "user_role_id", "is_active", "created_by") VALUES(1, 1,  true, 1);
 INSERT INTO "action_user_roles" ("action_id", "user_role_id", "is_active", "created_by") VALUES(1, 2,  true, 1);
@@ -118,7 +125,7 @@ INSERT INTO "action_user_roles" ("action_id", "user_role_id", "is_active", "crea
 INSERT INTO "action_user_roles" ("action_id", "user_role_id", "is_active", "created_by") VALUES(5, 2,  true, 1);
 INSERT INTO "action_user_roles" ("action_id", "user_role_id", "is_active", "created_by") VALUES(5, 3,  true, 1);
 
-INSERT INTO "device_action_mode" ("device_id", "action_id", "created_by") VALUES(1, 3, 1);
+INSERT INTO "device_action_mode" ("device_id", "action_id", "created_by") VALUES(1, 4, 1);
 INSERT INTO "device_action_mode" ("device_id", "action_id", "created_by") VALUES(2, 1, 1);
 INSERT INTO "device_action_mode" ("device_id", "action_id", "created_by") VALUES(3, 2, 1);
 

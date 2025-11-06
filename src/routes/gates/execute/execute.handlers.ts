@@ -3,7 +3,7 @@ import { action_device_roles, actions } from "@/db/postgres/schemas/actions/sche
 import { defaulting } from "@/db/postgres/schemas/defaulting/schema";
 import { device_action_mode, device_status, devices } from "@/db/postgres/schemas/devices/schema";
 import { identifier_errors, temporary_identifier_errors } from "@/db/postgres/schemas/errors/schema";
-import { identifiers } from "@/db/postgres/schemas/identifiers/schema";
+import { identifier_reader_log, identifiers } from "@/db/postgres/schemas/identifiers/schema";
 import { temporary_identifier_bearer_status, temporary_identifier_bearers, temporary_identifiers } from "@/db/postgres/schemas/identifiers/temporary/schema";
 import { identifier_logs, temporary_identifier_logs } from "@/db/postgres/schemas/logs/schema";
 import { user_information, users } from "@/db/postgres/schemas/users/schema";
@@ -100,6 +100,25 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
   const deviceActionModesNames = deviceActions.map(da => da.name);
 
   console.log("Device Action Mode:", deviceActionModesNames);
+
+  if(deviceActionModesNames.includes("Writer")) {
+    const {identifier_id} = action
+    const readingLog = {
+      factory_id: identifier_id,
+      device_id: device.id,
+    }
+
+    console.log("readingLog:", readingLog)
+    
+    const [identifierWrote] = await postgres
+    .insert(identifier_reader_log)
+    .values(readingLog)
+    .returning();
+
+    console.log(identifierWrote)
+    
+    return c.json(identifierWrote, HttpStatusCodes.OK);
+  }
 
   // const deviceRoleActions = await postgres
   //   .select()
@@ -216,34 +235,34 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     }
 
     const [userPID] = await postgres
-    .select({
-      identity_number: user_information.identity_number,
-    })
-    .from(user_information)
-    .where(eq(user_information.user_id, temporaryIdentifierBearer.user_id))
-    .limit(1);
+      .select({
+        identity_number: user_information.identity_number,
+      })
+      .from(user_information)
+      .where(eq(user_information.user_id, temporaryIdentifierBearer.user_id))
+      .limit(1);
 
     const [isDefaulting] = await postgres
-    .select({
-      is_defaulting: defaulting.is_defaulting,
-    })
-    .from(defaulting)
-    .where(eq(defaulting.identity_number, userPID.identity_number))
-    .limit(1)
+      .select({
+        is_defaulting: defaulting.is_defaulting,
+      })
+      .from(defaulting)
+      .where(eq(defaulting.identity_number, userPID.identity_number))
+      .limit(1)
 
-    if (isDefaulting){
+    if (isDefaulting) {
       c.var.logger.info("Temporary Identifier Bearer %d is defaulting", action.identifier_id)
       const [actionError] = await postgres
-      .insert(temporary_identifier_errors)
-      .values({
-        temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-        device_id: device.id,
-        error_id: 13,
-      })
-      .returning()
+        .insert(temporary_identifier_errors)
+        .values({
+          temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
+          device_id: device.id,
+          error_id: 13,
+        })
+        .returning()
       return c.json(
         {
-          message: `(13) Temporary Identifier Bearer is defaulting - ${actionError.id}` ,
+          message: `(13) Temporary Identifier Bearer is defaulting - ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -255,16 +274,16 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
       if (temporaryIdentifierBearer.valid_from > now) {
         c.var.logger.info("Temporary Identifier %d not valid", action.identifier_id)
         const [actionError] = await postgres
-        .insert(temporary_identifier_errors)
-        .values({
-          temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-          device_id: device.id,
-          error_id: 1,
-        })
-        .returning()
+          .insert(temporary_identifier_errors)
+          .values({
+            temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
+            device_id: device.id,
+            error_id: 1,
+          })
+          .returning()
         return c.json(
           {
-            message: `(1) Temporary Identifier is not valid - ${actionError.id}` ,
+            message: `(1) Temporary Identifier is not valid - ${actionError.id}`,
           },
           HttpStatusCodes.NOT_FOUND,
         );
@@ -274,16 +293,16 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     if (temporaryIdentifierBearer.valid_to < now) {
       c.var.logger.info("Temporary Identifier %d not valid", action.identifier_id)
       const [actionError] = await postgres
-      .insert(temporary_identifier_errors)
-      .values({
-        temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-        device_id: device.id,
-        error_id: 1,
-      })
-      .returning()
+        .insert(temporary_identifier_errors)
+        .values({
+          temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
+          device_id: device.id,
+          error_id: 1,
+        })
+        .returning()
       return c.json(
         {
-          message: `(1) Temporary Identifier is not valid | ${actionError.id}` ,
+          message: `(1) Temporary Identifier is not valid | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -303,16 +322,16 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     if (!temporaryIdentifierBearerStatus || !temporaryIdentifierBearerStatus.is_active) {
       c.var.logger.info("Temporary Identifier %d not active", action.identifier_id)
       const [actionError] = await postgres
-      .insert(temporary_identifier_errors)
-      .values({
-        temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
-        device_id: device.id,
-        error_id: 2,
-      })
-      .returning()
+        .insert(temporary_identifier_errors)
+        .values({
+          temporary_identifier_bearer_id: temporaryIdentifierBearer.id,
+          device_id: device.id,
+          error_id: 2,
+        })
+        .returning()
       return c.json(
         {
-          message: `(2) Temporary Identifier is not active | ${actionError.id}` ,
+          message: `(2) Temporary Identifier is not active | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -409,34 +428,34 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
   } else {
 
     const [userPID] = await postgres
-    .select({
-      identity_number: user_information.identity_number,
-    })
-    .from(user_information)
-    .where(eq(user_information.user_id, identifier.user_id))
-    .limit(1);
+      .select({
+        identity_number: user_information.identity_number,
+      })
+      .from(user_information)
+      .where(eq(user_information.user_id, identifier.user_id))
+      .limit(1);
 
     const [isDefaulting] = await postgres
-    .select({
-      is_defaulting: defaulting.is_defaulting,
-    })
-    .from(defaulting)
-    .where(eq(defaulting.identity_number, userPID.identity_number))
-    .limit(1)
+      .select({
+        is_defaulting: defaulting.is_defaulting,
+      })
+      .from(defaulting)
+      .where(eq(defaulting.identity_number, userPID.identity_number))
+      .limit(1)
 
-    if (isDefaulting){
+    if (isDefaulting) {
       c.var.logger.info("Identifier Bearer %d is defaulting", action.identifier_id)
       const [actionError] = await postgres
-      .insert(identifier_errors)
-      .values({
-        identifier_id: identifier.user_id,
-        device_id: device.id,
-        error_id: 12,
-      })
-      .returning()
+        .insert(identifier_errors)
+        .values({
+          identifier_id: identifier.user_id,
+          device_id: device.id,
+          error_id: 12,
+        })
+        .returning()
       return c.json(
         {
-          message: `(12) Identifier Bearer is defaulting - ${actionError.id}` ,
+          message: `(12) Identifier Bearer is defaulting - ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -547,35 +566,35 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
   if (isEntry) {
     if (isEntry && !deviceAllowsEntry) {
       c.var.logger.warn("Device %d does not allow entry", action.device_id)
-      
-      if(isTemp && temporaryIdentifierId){
+
+      if (isTemp && temporaryIdentifierId) {
         const [actionError] = await postgres
-        .insert(temporary_identifier_errors)
-        .values({
-          temporary_identifier_bearer_id: temporaryIdentifierId,
-          device_id: device.id,
-          error_id: 6,
-        })
-        .returning()
+          .insert(temporary_identifier_errors)
+          .values({
+            temporary_identifier_bearer_id: temporaryIdentifierId,
+            device_id: device.id,
+            error_id: 6,
+          })
+          .returning()
         return c.json(
           {
-            message: `(6) Action not allowed - Entry not allowed | ${actionError.id}` ,
+            message: `(6) Action not allowed - Entry not allowed | ${actionError.id}`,
           },
           HttpStatusCodes.NOT_FOUND,
         );
       }
 
       const [actionError] = await postgres
-      .insert(identifier_errors)
-      .values({
-        identifier_id: identifier.id,
-        device_id: device.id,
-        error_id: 4,
-      })
-      .returning()
+        .insert(identifier_errors)
+        .values({
+          identifier_id: identifier.id,
+          device_id: device.id,
+          error_id: 4,
+        })
+        .returning()
       return c.json(
         {
-          message: `(4) Action not allowed - Entry not allowed | ${actionError.id}` ,
+          message: `(4) Action not allowed - Entry not allowed | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -584,34 +603,34 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     // !ES UNA SALIDA
     if (!isEntry && !deviceAllowsExit) {
       c.var.logger.warn("Device %d does not allow exit", action.device_id)
-      if(isTemp && temporaryIdentifierId){
+      if (isTemp && temporaryIdentifierId) {
         const [actionError] = await postgres
-        .insert(temporary_identifier_errors)
-        .values({
-          temporary_identifier_bearer_id: temporaryIdentifierId,
-          device_id: device.id,
-          error_id: 7,
-        })
-        .returning()
+          .insert(temporary_identifier_errors)
+          .values({
+            temporary_identifier_bearer_id: temporaryIdentifierId,
+            device_id: device.id,
+            error_id: 7,
+          })
+          .returning()
         return c.json(
           {
-            message: `(7) Action not allowed - Exit not allowed | ${actionError.id}` ,
+            message: `(7) Action not allowed - Exit not allowed | ${actionError.id}`,
           },
           HttpStatusCodes.NOT_FOUND,
         );
       }
 
       const [actionError] = await postgres
-      .insert(identifier_errors)
-      .values({
-        identifier_id: identifier.id,
-        device_id: device.id,
-        error_id: 5,
-      })
-      .returning()
+        .insert(identifier_errors)
+        .values({
+          identifier_id: identifier.id,
+          device_id: device.id,
+          error_id: 5,
+        })
+        .returning()
       return c.json(
         {
-          message: `(5) Action not allowed - Exit not allowed | ${actionError.id}` ,
+          message: `(5) Action not allowed - Exit not allowed | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -622,34 +641,34 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
   if (!deviceAllowsVehicle) {
     if (isVehicle) {
       c.var.logger.warn("Device %d does not allow vehichle", action.device_id)
-      if(isTemp && temporaryIdentifierId){
+      if (isTemp && temporaryIdentifierId) {
         const [actionError] = await postgres
-        .insert(temporary_identifier_errors)
-        .values({
-          temporary_identifier_bearer_id: temporaryIdentifierId,
-          device_id: device.id,
-          error_id: 11,
-        })
-        .returning()
+          .insert(temporary_identifier_errors)
+          .values({
+            temporary_identifier_bearer_id: temporaryIdentifierId,
+            device_id: device.id,
+            error_id: 11,
+          })
+          .returning()
         return c.json(
           {
-            message: `(11) Action not allowed - Vehicle not allowed | ${actionError.id}` ,
+            message: `(11) Action not allowed - Vehicle not allowed | ${actionError.id}`,
           },
           HttpStatusCodes.NOT_FOUND,
         );
       }
 
       const [actionError] = await postgres
-      .insert(identifier_errors)
-      .values({
-        identifier_id: identifier.id,
-        device_id: device.id,
-        error_id: 9,
-      })
-      .returning()
+        .insert(identifier_errors)
+        .values({
+          identifier_id: identifier.id,
+          device_id: device.id,
+          error_id: 9,
+        })
+        .returning()
       return c.json(
         {
-          message: `(9) Action not allowed - Vehicle not allowed | ${actionError.id}` ,
+          message: `(9) Action not allowed - Vehicle not allowed | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );
@@ -658,34 +677,34 @@ export const executeAction: AppRouteHandler<ExecuteActionRoute> = async (c) => {
     // !ES PEATONAL
     if (isPedestrian) {
       c.var.logger.warn("Device %d does not allow pedestrian", action.device_id)
-      if(isTemp && temporaryIdentifierId){
+      if (isTemp && temporaryIdentifierId) {
         const [actionError] = await postgres
-        .insert(temporary_identifier_errors)
-        .values({
-          temporary_identifier_bearer_id: temporaryIdentifierId,
-          device_id: device.id,
-          error_id: 10,
-        })
-        .returning()
+          .insert(temporary_identifier_errors)
+          .values({
+            temporary_identifier_bearer_id: temporaryIdentifierId,
+            device_id: device.id,
+            error_id: 10,
+          })
+          .returning()
         return c.json(
           {
-            message: `(10) Action not allowed - Pedestrian not allowed | ${actionError.id}` ,
+            message: `(10) Action not allowed - Pedestrian not allowed | ${actionError.id}`,
           },
           HttpStatusCodes.NOT_FOUND,
         );
       }
 
       const [actionError] = await postgres
-      .insert(identifier_errors)
-      .values({
-        identifier_id: identifier.id,
-        device_id: device.id,
-        error_id: 8,
-      })
-      .returning()
+        .insert(identifier_errors)
+        .values({
+          identifier_id: identifier.id,
+          device_id: device.id,
+          error_id: 8,
+        })
+        .returning()
       return c.json(
         {
-          message: `(8) Action not allowed - Pedestrian not allowed | ${actionError.id}` ,
+          message: `(8) Action not allowed - Pedestrian not allowed | ${actionError.id}`,
         },
         HttpStatusCodes.NOT_FOUND,
       );

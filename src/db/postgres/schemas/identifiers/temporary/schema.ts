@@ -4,6 +4,7 @@ import z from "zod";
 
 import { toZodV4SchemaTyped } from "@/lib/zod-utils";
 
+import { sql } from "drizzle-orm";
 import { organizations } from "../../organizations/schema";
 import { users } from "../../users/schema";
 
@@ -20,8 +21,8 @@ export const temporary_identifier_bearers = pgTable("temporary_identifier_bearer
   temporary_identifier_id: integer().notNull().references(() => temporary_identifiers.id),
   user_id: integer().notNull().references(() => users.id),
   organization_id: integer().notNull().references(() => organizations.id),
-  valid_from: timestamp().defaultNow(),
-  valid_to: timestamp().notNull(),
+  valid_from: timestamp("valid_from",{ mode: 'date' }).defaultNow(),
+  valid_to: timestamp("valid_to",{ mode: 'date' }).notNull().default(sql`now() + interval '1 day'`),
   created_by: integer().notNull().references(() => users.id),
   created_at: timestamp().defaultNow(),
 });
@@ -54,10 +55,10 @@ export const insertTemporaryIdentifierBearerSchema = toZodV4SchemaTyped(createIn
     temporary_identifier_id: true,
     user_id: true,
     organization_id: true,
-    valid_to: true,
     created_by: true,
   }).omit({
     id: true,
+    valid_to: true,
     valid_from: true,
     created_at: true,
   }));
@@ -82,4 +83,17 @@ export const selectNewTemporaryIdentifierBearersSchema = z.object({
 export const insertNewTemporaryIdentifierBearerSchema = z.object({
   temporaryIdentifierBearer: insertTemporaryIdentifierBearerSchema,
   status: insertTemporaryIdentifierBearerStatusSchema,
+});
+
+export const selectListTemporaryIdentifiersSchema = z.object({
+  id: z.number().optional(),
+  identifier_id: z.string().optional(),
+  factory_id: z.number().optional(),
+  user_id: z.string().optional(),
+  user_lida_id: z.string().optional(),
+  user_name: z.string().optional(),
+  user_last_name: z.string().optional(),
+  organization_id: z.string().optional(),
+  organization_name: z.string().optional(),
+  is_active: z.boolean().optional(),
 });

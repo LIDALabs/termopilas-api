@@ -65,3 +65,29 @@ export const insertNewDeviceSchema = z.object({
   device: insertDeviceSchema,
   status: insertDeviceStatusSchema,
 });
+
+export const selectDeviceActionModesSchema = toZodV4SchemaTyped(createSelectSchema(device_action_mode));
+export const insertDeviceActionModeSchema = toZodV4SchemaTyped(createInsertSchema(device_action_mode)
+  .required({
+    device_id: true,
+    action_id: true,
+    created_by: true,
+  }).omit({
+    id: true,
+    created_at: true,
+  }));
+
+// @ts-expect-error partial exists on zod v4 type
+export const patchDeviceActionModeSchema = insertDeviceActionModeSchema.partial();
+
+export const selectListDevicesSchema = z.object({
+  id: z.number().optional(),
+  device_id: z.string().optional(),
+  role_id: z.number().optional(),
+  role_name: z.string().optional(),
+  role_description: z.string().optional(),
+  action_id: z.number().optional(),
+  action_name: z.string().optional(),
+  action_description: z.string().optional(),
+  is_active: z.boolean().optional(),
+});

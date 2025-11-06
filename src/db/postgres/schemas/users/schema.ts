@@ -80,3 +80,16 @@ export const insertNewUserSchema = z.object({
   status: insertUserStatusSchema,
   information: insertUserInformationSchema.optional(),
 });
+
+export const selectListUserSchema = z.object({
+  id: z.number().optional(),
+  lida_id: z.string().optional(),
+  name:z.string().optional(),
+  last_name: z.string().optional(),
+  username: z.string().optional(),
+  identity_number: z.number().optional(),
+  role_id: z.number().optional(),
+  role_name: z.string().optional(),
+  role_description: z.string().optional(),
+  is_active: z.boolean().optional(),
+});
